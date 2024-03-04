@@ -31,7 +31,7 @@ countries_list = countries_list.astype(str)
 latitude = latitude.astype(str)
 longitude = longitude.astype(str)
 age = age.astype(str)
-
+            
 # create list with anncient and modern samples
 ancient_samples = []
 modern_samples = []
