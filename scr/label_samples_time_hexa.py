@@ -5,6 +5,7 @@
 import pandas as pd
 import os
 import sys
+from h3 import h3
 
 def read_df(path):
     df = pd.read_csv(path, sep="\t")
@@ -52,6 +53,17 @@ def add_age_group_column(df, name_dict):
     df['AgeGroup'] = df['ID'].map(name_dict)
     return df
 
+def filter_df(df):
+    # filter out the samples with missing latitude and longitude
+    filtered_df = df[df['Latitude'] != '..']
+    filtered_df = filtered_df[filtered_df['Longitude'] != '..']
+    return filtered_df
+
+def assign_hexagon_to_samples(df, resolution=2):
+    hex_col = 'hex'+str(resolution)
+    df[hex_col] = df.apply(lambda x: h3.geo_to_h3(float(x['Latitude']), float(x['Longitude']), resolution=resolution), axis=1)
+    return df
+
 # function that writes the age groups to a file
 def write_df(df, path):
     df.to_csv(path, sep="\t", index=False)
@@ -60,10 +72,10 @@ def write_df(df, path):
 # get the path for the project directory
 parent_dir = os.path.dirname(os.getcwd())
 
-def main():
+if __name__ == "__main__":
     df = read_df(f'{parent_dir}/0_data/Ancient_samples_with_labels.txt')
     # if there is an argument, use it as the number of bins, otherwise use the default value 30
-    if sys.argv[1] is not None:
+    if len(sys.argv) == 2:
         number_of_bins = int(sys.argv[1])
         age_groups = create_age_groups(df, number_of_bins)
     else:
@@ -72,5 +84,7 @@ def main():
     name_dict = name_age_groups(age_groups)
     # create a new dataframe with the age group column
     new_df = add_age_group_column(df, name_dict)
+    new_df= filter_df(new_df)
+    new_df = assign_hexagon_to_samples(new_df)
     # write the dataframe to a file
-    write_df(new_df, f'{parent_dir}/0_data/Ancient_samples_with_age_group.txt')
+    write_df(new_df, f'{parent_dir}/0_data/Ancient_samples_with_time_hexagon.txt')
