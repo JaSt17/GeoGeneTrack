@@ -43,11 +43,11 @@ for i in range(len(index)):
        
 # write the data to a new file
 with open(f'{parent_dir}/0_data/Ancient_samples_with_labels.txt', 'w') as f:
-    f.write('#\tIndex\tID\tCountry\tLatitude\tLongitude\tAge\n')
+    f.write('Index\tID\tCountry\tLatitude\tLongitude\tAge\n')
     for sample in ancient_samples:
         f.write('\t'.join(sample) + '\n')
 with open(f'{parent_dir}/0_data/Modern_samples_with_labels.txt', 'w') as f:
-    f.write('#\tIndex\tID\tCountry\tLatitude\tLongitude\tAge\n')
+    f.write('Index\tID\tCountry\tLatitude\tLongitude\tAge\n')
     for sample in modern_samples:
         f.write('\t'.join(sample) + '\n')
 
