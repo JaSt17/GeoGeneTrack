@@ -60,13 +60,21 @@ def filter_df(df):
     return filtered_df
 
 def assign_hexagon_to_samples(df, resolution=2):
-    hex_col = 'hex'+str(resolution)
+    hex_col = 'hex_res_'+str(resolution)
     df[hex_col] = df.apply(lambda x: h3.geo_to_h3(float(x['Latitude']), float(x['Longitude']), resolution=resolution), axis=1)
     return df
 
 # function that writes the age groups to a file
 def write_df(df, path):
     df.to_csv(path, sep="\t", index=False)
+    return
+
+def wirte_keep_id_list(df, path):
+    keep_index_list = df["Index"].tolist()
+    keep_id_list = df['ID'].tolist()
+    with open(path, 'w') as file:
+        for i in range(len(keep_index_list)):
+            file.write(f"{keep_index_list[i]}\t{keep_id_list[i]}\n")
     return
 
 # get the path for the project directory
@@ -88,3 +96,5 @@ if __name__ == "__main__":
     new_df = assign_hexagon_to_samples(new_df)
     # write the dataframe to a file
     write_df(new_df, f'{parent_dir}/0_data/Ancient_samples_with_time_hexagon.txt')
+    # write the list of IDs to keep
+    wirte_keep_id_list(new_df, f'{parent_dir}/0_data/keep_id_list.txt')
