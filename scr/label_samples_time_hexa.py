@@ -4,7 +4,6 @@
 
 import pandas as pd
 import os
-import sys
 from h3 import h3
 
 def read_df(path):
@@ -14,7 +13,7 @@ def read_df(path):
     return df
  
 # function that creates n time bins with equally distributed number of samples in each group
-def create_age_groups(df, number_of_bins=30):
+def create_age_groups(df, number_of_bins):
     total_samples = df.shape[0]
     sample_per_bin, remainder = divmod(total_samples, number_of_bins)
     temp_df = df.sort_values('Age')
@@ -59,7 +58,7 @@ def filter_df(df):
     filtered_df = filtered_df[filtered_df['Longitude'] != '..']
     return filtered_df
 
-def assign_hexagon_to_samples(df, resolution=2):
+def assign_hexagon_to_samples(df, resolution):
     hex_col = 'hex_res_'+str(resolution)
     df[hex_col] = df.apply(lambda x: h3.geo_to_h3(float(x['Latitude']), float(x['Longitude']), resolution=resolution), axis=1)
     return df
@@ -69,32 +68,16 @@ def write_df(df, path):
     df.to_csv(path, sep="\t", index=False)
     return
 
-def wirte_keep_id_list(df, path):
-    keep_index_list = df["Index"].tolist()
-    keep_id_list = df['ID'].tolist()
-    with open(path, 'w') as file:
-        for i in range(len(keep_index_list)):
-            file.write(f"{keep_index_list[i]}\t{keep_id_list[i]}\n")
-    return
-
-# get the path for the project directory
-parent_dir = os.path.dirname(os.getcwd())
-
-if __name__ == "__main__":
-    df = read_df(f'{parent_dir}/0_data/Ancient_samples_with_labels.txt')
-    # if there is an argument, use it as the number of bins, otherwise use the default value 30
-    if len(sys.argv) == 2:
-        number_of_bins = int(sys.argv[1])
-        age_groups = create_age_groups(df, number_of_bins)
-    else:
-        age_groups = create_age_groups(df)
+def label_samples(path, df, number_of_bins=30,resolution=2):
+    # create the age groups
+    age_groups = create_age_groups(df, number_of_bins)
     # get the name for each age group
     name_dict = name_age_groups(age_groups)
     # create a new dataframe with the age group column
     new_df = add_age_group_column(df, name_dict)
+    # filter for errors in the latitude and longitude coulmns
     new_df= filter_df(new_df)
-    new_df = assign_hexagon_to_samples(new_df)
+    # assign a hexagon to each sample
+    new_df = assign_hexagon_to_samples(new_df, resolution=resolution)
     # write the dataframe to a file
-    write_df(new_df, f'{parent_dir}/0_data/Ancient_samples_with_time_hexagon.txt')
-    # write the list of IDs to keep
-    wirte_keep_id_list(new_df, f'{parent_dir}/0_data/keep_id_list.txt')
+    write_df(new_df, f'{path}/0_data/Ancient_samples_with_time_hexagon.txt')

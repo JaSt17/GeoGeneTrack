@@ -1,25 +1,28 @@
 import h3
 import pandas as pd
 import sys
+import pickle
 
-# function that reads the data from a file and returns a dataframe
-def read_df(path):
-    df = pd.read_csv(path, sep="\t")
-    #convert the age column to numeric
-    df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
-    return df
 
 # function that reads the distance matrix with the IBS distances and returns a distance matrix as a dataframe
-def read_dist_matrix(path_matrix, path_id_file):
-    # Load the ID file to get the order of IDs in the distance matrix.
-    id_df = pd.read_csv(path_id_file, sep="\t", header=None, names=["Index", "ID"])
-    # Get the IDs as a list to use as column and index names for the distance matrix.
-    ids = id_df["ID"].tolist()
-    # This assumes the order of IDs in the ID file matches the order in the distance matrix file.
-    dist_matrix = pd.read_csv(path_matrix, sep=" ", header=None, index_col=False, names=ids)
-    dist_matrix.index = ids
-    # return the distance matrix as a dataframe
-    return dist_matrix
+def read_dist_matrix(path, path_matrix, path_id_file, resolutuion, time_bins):
+    # check if a saved distance matrix exists
+    try:
+        dist_matrix = pickle.load(open(f"{path}/4_dist_matrix/dist_matrix_{time_bins}_{resolutuion}.p", "rb"))
+        print("Distance matrix loaded from file.")
+        return dist_matrix
+    except:
+        # Load the ID file to get the order of IDs in the distance matrix.
+        id_df = pd.read_csv(path_id_file, sep="\t", header=None, names=["Index", "ID"])
+        # Get the IDs as a list to use as column and index names for the distance matrix.
+        ids = id_df["ID"].tolist()
+        # This assumes the order of IDs in the ID file matches the order in the distance matrix file.
+        dist_matrix = pd.read_csv(path_matrix, sep="\t", header=None, index_col=False, names=ids)
+        dist_matrix.index = ids
+        # save the distance matrix as a pickle file
+        pickle.dump(dist_matrix, open(f"{path}/4_dist_matrix/dist_matrix_{time_bins}_{resolutuion}.p", "wb"))
+        # return the distance matrix as a dataframe
+        return dist_matrix
 
 # this function calculates the average distance between two sets of samples
 def calc_avg_dist(samples_hex1, samples_hex2, dist_matrix):
@@ -113,16 +116,19 @@ def get_hexagons_below_threshold(averages, threshold):
 
     return hexagons_below_threshold
 
-# inputs:
-# 1. path to the file containing the ancient data with location and time information
-# 2. path to the file containing the distance matrix
-# 3. path to the file containing the IDs corresponding to the distance matrix
-# 4. threshold for the average distance to the neighbors        
-if __name__ == "__main__":
-    df = read_df(sys.argv[1])
+def write_output(hexagons_below_threshold, threshold, output_file):
+    with open(output_file, 'w') as f:
+        f.write(f"TimeBin\tHexagon\tNeighbor\tDistance\t(Threshold: <{threshold})\n")
+        for time_bin, entries in hexagons_below_threshold.items():
+            for entry in entries:
+                f.write(f"{time_bin}\t{entry[0]}\t{entry[1]}\t{entry[2]}\n")
+    
+def calc_distances(path, df, dist_matrix, id_file, threshold, resolutuion, time_bins):
     hex_col = df.columns[7]
-    dist_matrix = read_dist_matrix(sys.argv[2], sys.argv[3])
+    dist_matrix = read_dist_matrix(path, dist_matrix, id_file, resolutuion, time_bins)
     distances_in_each_time_bin = calc_dist_time_bin(df, hex_col, dist_matrix)
-    hexagons_below_threshold = get_hexagons_below_threshold(distances_in_each_time_bin, float(sys.argv[4]))
+    hexagons_below_threshold = get_hexagons_below_threshold(distances_in_each_time_bin, threshold)
+    write_output(hexagons_below_threshold, threshold, f"{path}/output/output_{threshold}.txt")
+    return hexagons_below_threshold
     
     
