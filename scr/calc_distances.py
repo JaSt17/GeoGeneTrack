@@ -1,6 +1,5 @@
 import h3
 import pandas as pd
-import sys
 import pickle
 
 
@@ -105,7 +104,7 @@ def calc_hexagons_below_threshold(averages, threshold):
             for hexagon, neighbors in hexagons.items():
                 for neighbor, distance in neighbors.items():
                     # Check if the distance is below the threshold
-                    if distance > threshold:
+                    if distance < threshold:
                         # Prepare the entry containing the hexagon, its neighbor, and the distance
                         entry = [hexagon, neighbor, distance]
                         entries.append(entry)
@@ -133,5 +132,20 @@ def get_hexagons_below_threshold(path, distances_in_each_time_bin, threshold):
     hexagons_below_threshold = calc_hexagons_below_threshold(distances_in_each_time_bin, threshold)
     write_output(hexagons_below_threshold, threshold, f"{path}/output/output_{threshold}.txt")
     return hexagons_below_threshold
+
+def read_hex_dict(path):
+    hex_dict = {}
+    with open(path, 'r') as f:
+        for line in f:
+            # scip first line
+            if line.startswith("TimeBin"):
+                continue
+            values = line.split("\t")
+            time_bin = values[0]
+            hex_id1 = values[1]
+            hex_id2 = values[2]
+            hex_dict[time_bin] = [hex_id1, hex_id2]
+    return hex_dict
+
     
     

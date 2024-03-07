@@ -34,11 +34,11 @@ def calc_dist_matrix(time_bins, resolutuion):
     
     return dist_matrix
 
-if __name__ == "__main__":
-    matrix=calc_dist_matrix(30, 2)
-    path  = os.path.dirname(os.getcwd())
-    thresholds = [0.72, 0.73, 0.74, 0.75]
-    for threshold in thresholds:
-        get_hexagons_below_threshold(path,matrix, threshold)
+# if __name__ == "__main__":
+#     matrix=calc_dist_matrix(30, 2)
+#     path  = os.path.dirname(os.getcwd())
+#     thresholds = [0.72, 0.73, 0.74, 0.75]
+#     for threshold in thresholds:
+#         get_hexagons_below_threshold(path,matrix, threshold)
     
     
