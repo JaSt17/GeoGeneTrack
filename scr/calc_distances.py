@@ -92,7 +92,7 @@ def calc_dist_time_bin(df, hex_col, dist_matrix):
     return averages
 
 # this function returns the hexagons that have an average distance to their neighbors below a certain threshold
-def get_hexagons_below_threshold(averages, threshold):
+def calc_hexagons_below_threshold(averages, threshold):
     hexagons_below_threshold = {}
     
     # Iterate over each time_bin dictionary in the averages list
@@ -105,7 +105,7 @@ def get_hexagons_below_threshold(averages, threshold):
             for hexagon, neighbors in hexagons.items():
                 for neighbor, distance in neighbors.items():
                     # Check if the distance is below the threshold
-                    if distance < threshold:
+                    if distance > threshold:
                         # Prepare the entry containing the hexagon, its neighbor, and the distance
                         entry = [hexagon, neighbor, distance]
                         entries.append(entry)
@@ -123,11 +123,14 @@ def write_output(hexagons_below_threshold, threshold, output_file):
             for entry in entries:
                 f.write(f"{time_bin}\t{entry[0]}\t{entry[1]}\t{entry[2]}\n")
     
-def calc_distances(path, df, dist_matrix, id_file, threshold, resolutuion, time_bins):
+def calc_distance_matrix(path, df, dist_matrix, id_file, resolutuion, time_bins):
     hex_col = df.columns[7]
     dist_matrix = read_dist_matrix(path, dist_matrix, id_file, resolutuion, time_bins)
     distances_in_each_time_bin = calc_dist_time_bin(df, hex_col, dist_matrix)
-    hexagons_below_threshold = get_hexagons_below_threshold(distances_in_each_time_bin, threshold)
+    return distances_in_each_time_bin
+    
+def get_hexagons_below_threshold(path, distances_in_each_time_bin, threshold):
+    hexagons_below_threshold = calc_hexagons_below_threshold(distances_in_each_time_bin, threshold)
     write_output(hexagons_below_threshold, threshold, f"{path}/output/output_{threshold}.txt")
     return hexagons_below_threshold
     
