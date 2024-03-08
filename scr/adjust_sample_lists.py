@@ -10,7 +10,6 @@
 #  'Date mean in BP in years before 1950 CE [OxCal mu for a direct radiocarbon date, and average of range for a contextual date]'
 
 import pandas as pd
-import os
 
 def split_ancient_modern(path):
     # read in the data from excel file

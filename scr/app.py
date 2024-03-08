@@ -15,6 +15,7 @@ time_bins = st.slider('Select a number of time bins', 1, 30, 15, 1)
 resolutuion = st.slider('Select a resolution', 1, 13, 2, 1)
 threshold = st.slider('Select a threshold', 0.6, 1.0, 0.73, 0.01)
 if st.button('Run'):
+    print("Running GeoGeneTrack")
     ibs_matrix=calc_dist_matrix(time_bins, resolutuion)
     path  = os.path.dirname(os.getcwd())
     hexagons_with_high_distance = get_hexagons_below_threshold(path,ibs_matrix, threshold)

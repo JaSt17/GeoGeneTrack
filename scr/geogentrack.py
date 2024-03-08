@@ -3,6 +3,11 @@ from label_samples_time_hexa import label_samples, read_df
 from calc_distances import calc_distance_matrix, get_hexagons_below_threshold
 import os
 
+# this function runs the initial steps of the pipeline:
+# 1. split the ancient and modern samples
+# 2. write ancient samples with time bins and hexagon ids to plink format
+# 3. calculate ibs distance matrix
+# it only has to be run once or if the data changes or we want to add aditional plink filtering steps
 def initial_run():
     # get the path for the project directory
     path = os.getcwd()
@@ -17,7 +22,7 @@ def initial_run():
     print("calculating ibs distance matrix...")
     os.system(f"plink --bfile 1_ancient_data/ancient_samples --distance ibs flat-missing --out 3_ibs_dist/ibs_dist")
 
-    
+# this function calculates the distance matrix and returns it
 def calc_dist_matrix(time_bins, resolutuion):
     # get parent path
     path  = os.path.dirname(os.getcwd())
