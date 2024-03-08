@@ -1,33 +1,59 @@
 from h3 import h3
 import folium
-import pandas as pd
-# this is a funciton that can vizualize a polygon on a map
 
-def vizualize_polygon(polyline, color):
-    polyline.append(polyline[0])
-    lat = [x[0] for x in polyline]
-    long = [x[1] for x in polyline]
-    m = folium.Map(location=[sum(lat)/len(lat), sum(long)/len(long)], zoom_start=3)
-    m.add_child(folium.PolyLine(locations = ployline, color=color, weight=1))
-    return m
+# function takes a list of hexagos and a map and draws the hexagons on the map
+def draw_hexagons(hexagons, map=None, color='blue'):
+    # if there is no map, create a new one
+    if map is None:
+        # Generate basemap
+                map = folium.Map(location = [50.1, 14.1], 
+                 tiles = "Cartodb positron", 
+                 zoom_start = 1,
+                 max_bounds = True)
+    # Plot hexagons        
+    for hexagon in hexagons:
+        # Plot the neighbour                
+        folium.Polygon(
+            locations = h3.h3_to_geo_boundary(hexagon, geo_json = False),
+            stroke = False,  
+            weight = 1,
+            color = color,
+            fill_opacity=0.3,
+            fill=True
+        ).add_to(map)
+    return map 
 
-def vizualize_hexagons(hexagons, color='blue', folium_map=None):
-    polylines = []
-    lat = []
-    long = []
-    for hex in hexagons:
-        polygons = h3.h3_set_to_multi_polygon([hex], geo_json=False)
-        # flatten the polygons 
-        outline = [loop for polygon in polygons for loop in polygon]
-        # append the first point to the end to close the polygon
-        polyline = [outline + [outline[0]] for outline in outline] [0]
-        lat.extend(map(lambda x: x[0], polyline))
-        long.extend(map(lambda x: x[1], polyline))
-        polylines.append(polyline)
-    if folium_map is None:
-        folium_map = folium.Map(location=[sum(lat)/len(lat), sum(long)/len(long)], zoom_start=3)
-    else:
-        folium_map = folium_map
-    for polyline in polylines:
-        folium_map.add_child(folium.PolyLine(locations=polyline, color=color))
-    return folium_map
+# this function takes two hexagons and a map and draws the shared border between the two hexagons
+def draw_borders(hexagon1, hexagon2, map, color='red', ibs=None):
+    hexagon1_boundary = h3.h3_to_geo_boundary(hexagon1, geo_json=False)
+    hexagon2_boundary = h3.h3_to_geo_boundary(hexagon2, geo_json=False)
+    # Get shared boundary
+    shared_boundary = [x for x in hexagon1_boundary if x in hexagon2_boundary]
+    
+    # Proceed only if there is a shared boundary
+    if shared_boundary:
+        # Draw the shared boundary
+        folium.PolyLine(shared_boundary,
+                        color=color,
+                        weight=1).add_to(map)
+        # Add a text over the line if ibs is not None
+        if ibs is not None:
+            folium.Marker([sum([x[0] for x in shared_boundary])/len(shared_boundary),
+                           sum([x[1] for x in shared_boundary])/len(shared_boundary)], 
+                          icon=folium.DivIcon(html=f'<div style="font-size: 20; color: black;">{ibs}</div>')).add_to(map)
+    return map
+
+# this function takes a timebin and a map and draws all the borders between neighboring hexagons in the timebin
+def draw_all_boarders_for_time_bin(timebin, map):
+    # loop through all hexagons in the timebin
+    for hexagon in timebin:
+        # loop through all neighbors of that hexagon
+        for neighbor in timebin[hexagon]:
+            map = draw_borders(hexagon, neighbor, map, ibs=timebin[hexagon][neighbor])
+    return map
+
+# this function takes a timebin and a map and draws all the hexagons in the timebin
+def draw_time_bin_hexagons(timebin, map):
+    hexagons = list(timebin.keys())
+    map = draw_hexagons(hexagons, map)
+    return map

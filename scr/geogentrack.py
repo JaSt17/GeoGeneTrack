@@ -32,12 +32,12 @@ def calc_dist_matrix(time_bins, resolutuion):
     print("labeling samples with time bins and hexagon ids...")
     label_samples(path, df, time_bins,resolutuion)
     
-    df = read_df(f'{path}/0_data/Ancient_samples_with_time_hexagon.txt')
+    # df = read_df(f'{path}/0_data/Ancient_samples_with_time_hexagon.txt')
     
-    print("calculating distances to neighboring hexagons...")
-    dist_matrix=calc_distance_matrix(path, df, f'{path}/3_ibs_dist/ibs_dist.mibs', f'{path}/3_ibs_dist/ibs_dist.mibs.id', resolutuion, time_bins)
+    # print("calculating distances to neighboring hexagons...")
+    # dist_matrix=calc_distance_matrix(path, df, f'{path}/3_ibs_dist/ibs_dist.mibs', f'{path}/3_ibs_dist/ibs_dist.mibs.id', resolutuion, time_bins)
     
-    return dist_matrix
+    # return dist_matrix
 
 # if __name__ == "__main__":
 #     matrix=calc_dist_matrix(30, 2)

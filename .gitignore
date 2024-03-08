@@ -4,3 +4,5 @@
 3_ibs_dist/
 4_dist_matrix/
 output/
+scr/test*
+scr/__pycache__/

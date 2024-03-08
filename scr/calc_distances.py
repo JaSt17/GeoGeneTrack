@@ -71,7 +71,7 @@ def calc_dist_time_bin(df, hex_col, dist_matrix):
     time_bins = sorted(df['AgeGroupTuple'].unique())
 
     # Initialize a list to hold the average ibs calculations for each time bin.
-    averages = []
+    averages = {}
 
     # Iterate over each time bin.
     for time_bin in time_bins:
@@ -85,7 +85,7 @@ def calc_dist_time_bin(df, hex_col, dist_matrix):
         average_distances = calc_neighbor_dist(hexagons, dist_matrix, df, hex_col)
 
         # Append the calculated average distances to the list, indexed by the time bin label.
-        averages.append({bin_label: average_distances})
+        averages.update({bin_label: average_distances})
 
     # Return the list of average distances for each time bin.
     return averages
@@ -136,20 +136,6 @@ def get_hexagons_below_threshold(path, distances_in_each_time_bin, threshold):
     write_output(hexagons_below_threshold, threshold, f"{path}/output/output_{threshold}.txt")
     return hexagons_below_threshold
 
-# this function reads in a file with hexagons and their neighbors and returns a dict with time bins as keys and hexagons as values
-def read_hex_dict(path):
-    hex_dict = {}
-    with open(path, 'r') as f:
-        for line in f:
-            # scip first line
-            if line.startswith("TimeBin"):
-                continue
-            values = line.split("\t")
-            time_bin = values[0]
-            hex_id1 = values[1]
-            hex_id2 = values[2]
-            hex_dict[time_bin] = [hex_id1, hex_id2]
-    return hex_dict
 
     
     

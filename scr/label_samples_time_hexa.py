@@ -3,7 +3,6 @@
 # The age group is then added to the dataframe and written to a file.
 
 import pandas as pd
-import os
 from h3 import h3
 
 def read_df(path):
@@ -68,7 +67,9 @@ def write_df(df, path):
     df.to_csv(path, sep="\t", index=False)
     return
 
-def label_samples(path, df, number_of_bins=30,resolution=2):
+# function that labels the ancient samples with the time bins and hexagons and returns the dataframe
+def label_samples(path, number_of_bins=30,resolution=2):
+    df = read_df(f'{path}/0_data/Ancient_samples.txt')
     # create the age groups
     age_groups = create_age_groups(df, number_of_bins)
     # get the name for each age group
@@ -81,3 +82,4 @@ def label_samples(path, df, number_of_bins=30,resolution=2):
     new_df = assign_hexagon_to_samples(new_df, resolution=resolution)
     # write the dataframe to a file
     write_df(new_df, f'{path}/0_data/Ancient_samples_with_time_hexagon.txt')
+    return new_df
