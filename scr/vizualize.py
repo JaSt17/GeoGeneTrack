@@ -12,7 +12,6 @@ def draw_hexagons(hexagons, map=None, color='blue'):
                  max_bounds = True)
     # Plot hexagons        
     for hexagon in hexagons:
-        # Plot the neighbour                
         folium.Polygon(
             locations = h3.h3_to_geo_boundary(hexagon, geo_json = False),
             stroke = False,  
