@@ -34,6 +34,18 @@ def calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col):
     # return dataframe with the average ibs between each hexagon and its neighbors
     return averages
 
+def normalize_distances(timebin):
+    min_dist = 1
+    max_dist = 0
+    for pair in timebin:
+        if timebin[pair] < min_dist:
+            min_dist = timebin[pair]
+        if timebin[pair] > max_dist:
+            max_dist = timebin[pair]
+    for pair in timebin:
+        timebin[pair] = round((timebin[pair] - min_dist) / (max_dist - min_dist), 5)
+    return timebin
+
 # this function calculates the average ibs between the each hexagon and its neighbors for each time bin
 def calc_dist_time_bin(df, dist_matrix=None):
     # get column name for the hexagons
@@ -54,7 +66,6 @@ def calc_dist_time_bin(df, dist_matrix=None):
         # get all unique hexagons for that time bin
         hexagons = time_bin_df[hex_col].unique()
         
-        print(f'Processing time bin {bin_label} with {len(hexagons)} unique hexagons...')
         # Calculate the average distance for each hexagon to its neighbors within the current time bin.
         average_distances = calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col)
 
