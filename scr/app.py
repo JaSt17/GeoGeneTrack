@@ -5,6 +5,7 @@ from streamlit_folium import folium_static
 import pandas as pd
 from label_samples_time_hexa import label_samples
 from vizualize import draw_hexagons
+from func import rename_time_bins
 
 # Title
 st.title('GeoGenTrack')
@@ -17,8 +18,8 @@ def clear_state():
 
 # Initial screen to select time bins and resolution
 if 'setup_done' not in st.session_state:
-    time_bins = st.slider('Select a number of time bins', 1, 30, 15, 1)
-    resolution = st.slider('Select a resolution', 1, 13, 2, 1)
+    time_bins = st.slider('Select a number of time bins', 1, 30, 10, 1)
+    resolution = st.slider('Select a resolution', 1, 8, 2, 1)
     if st.button('Run'):
         st.session_state['setup_done'] = True
         st.session_state['time_bins'] = time_bins
@@ -33,14 +34,15 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
         st.experimental_rerun()
         
     df = label_samples("/home/jaro/Project/GeoGeneTrack",st.session_state['time_bins'],st.session_state['resolution'])
-    hexagons = df[f"hex_res_{st.session_state['resolution']}"].unique()
+    hexagons = df.iloc[:,-1].unique().tolist()
+    time_bins = rename_time_bins(df)
     
     st.write("Select a time bin:")
     # Create a dropdown to select time bins
-    selected_time_bin = st.selectbox("Time Bin", options=range(1, st.session_state['time_bins'] + 1))
+    selected_time_bin = st.selectbox("Time Bin", options=time_bins)
     
     # Create and display a folium map
-    m = m = draw_hexagons(hexagons)      
+    m = m = draw_hexagons(hexagons,zoom_start=str(st.session_state['resolution']))      
     
     # Static map display
     folium_static(m)
