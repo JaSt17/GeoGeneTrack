@@ -5,8 +5,8 @@ from streamlit_folium import folium_static
 import pandas as pd
 import pickle
 from label_samples_time_hexa import label_samples
-from vizualize import draw_time_bin_hexagons, draw_all_boarders_for_time_bin
-from func import rename_time_bins, calc_dist_time_bin, normalize_distances
+from vizualize import draw_hexagons, draw_all_boarders_for_time_bin
+from func import rename_time_bins, calc_dist_time_bin, normalize_distances, get_time_bin_hexagons
 
 # Title
 st.title('GeoGenTrack')
@@ -32,11 +32,13 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
         
     df = label_samples("/home/jaro/Project/GeoGeneTrack",st.session_state['time_bins'],st.session_state['resolution'])
     time_bins = rename_time_bins(df)
-    time_bins = calc_dist_time_bin(df, st.session_state['matrix'])
+    time_bins_hexagons = get_time_bin_hexagons(df)
+    time_bins_dist = calc_dist_time_bin(df, st.session_state['matrix'])
     
     # dropdown to select time bins
     selected_time_bin = st.sidebar.selectbox("Time Bin", options=time_bins)
-    timebin = time_bins[selected_time_bin]
+    hexagons = time_bins_hexagons[selected_time_bin]
+    timebin = time_bins_dist[selected_time_bin]
     
     # checkbox for normalizing IBS values
     if st.sidebar.checkbox("Normalize IBS values", value=False):
@@ -45,7 +47,7 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
     # input for entering a threshold between 0 and 1
     threshold = st.sidebar.number_input('choose IBS threshold (0 - 1):', min_value=0.0, max_value=1.0, value=1.0, step=0.00001)
 
-    m = draw_time_bin_hexagons(timebin, None)
+    m = draw_hexagons(hexagons)
     m = draw_all_boarders_for_time_bin(timebin, m, threshold)
  
     # Static map display
