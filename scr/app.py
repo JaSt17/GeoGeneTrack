@@ -26,7 +26,15 @@ def get_resoultion_data():
 
 # Initial screen to select time bins and resolution
 if 'setup_done' not in st.session_state:
-    st.title('GeoGenTrack')
+    st.set_page_config(page_title="GeoGeneTrack", page_icon=":earth_americas:")
+    col1, col2 = st.columns([1, 2])
+    # In the first column, display the image with a desired width
+    with col2:
+        st.image("img/GeoGenTrack_logo.png", width=100)  # Adjust width as needed
+    # In the second column, display the title
+    with col1:
+        st.title('GeoGenTrack')
+        
     if st.button("What is GeoGeneTrack:"):
         st.write("""
     This tool facilitates the monitoring of discrepancies between geographic and genomic distances within the Allen Ancient DNA Resource (AADR) dataset.
@@ -93,7 +101,7 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
         timebin = normalize_distances(timebin)
         
     if st.sidebar.button("Why normalize IBS values?"):
-        st.write("""
+        st.sidebar.write("""
 The majority of IBS values fall within the 0.72 to 0.8 range. Normalization is applied to adjust these values to a 0 to 1 scale within each timebin, enhancing the visibility of differences among the IBS values.
 
 IMPORTANT NOTE:
