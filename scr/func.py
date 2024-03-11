@@ -8,31 +8,40 @@ def read_df(path):
     df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
     return df
 
+# function that calculates the average ibs between two groups of samples
 def calc_avg_dist(samples_hex1, samples_hex2, dist_matrix):
     return dist_matrix.loc[samples_hex1, samples_hex2].values.flatten().mean()
 
 # this function calculates the average ibs between the each hexagon and its neighbors
-def calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col):
+def calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col, allow_k_distance):
     
     # Group the dataframe by the hexagon column and convert each group into a list of IDs, then into a dictionary.
     samples_in_hex = time_bin_df.groupby(hex_col)['ID'].apply(list).to_dict()
     
     # create a dictionary to store the average ibs between each hexagon and its neighbors
     averages = {}
+    hexagons_set = set(hexagons)
     # loop through all combinations of hexagons int the time bin and check if there are neighbors
     for hexagon in hexagons:
-        found_neighbors = False
-        neighbors = []
-        k = 1
-        while not found_neighbors:
-            # get all the neighbors of the hexagon
-            neighbors = h3.k_ring_distances(hexagon, k)[k]
-            # check if the neighbors are in the list of hexagons
+        # if we allow for k distance we search the neighbors until we find some or reach k = 20
+        if allow_k_distance:
+            found_neighbors = False
+            neighbors = []
+            k = 1
+            while not found_neighbors and k < 20:
+                # get all the neighbors of the hexagon
+                neighbors = h3.k_ring_distances(hexagon, k)[k]
+                # check if the neighbors are in the list of hexagons
+                neighbors = [n for n in neighbors if n in hexagons_set]
+                if len(neighbors) > 0:
+                    found_neighbors = True
+                else:
+                    k += 1
+        # if we don't allow for k distance we just get the first ring of neighbors
+        else:
+            neighbors = h3.k_ring_distances(hexagon, 1)[1]
             neighbors = [n for n in neighbors if n in hexagons]
-            if len(neighbors) > 0:
-                found_neighbors = True
-            else:
-                k += 1
+        # calculate the average ibs between the hexagon and its neighbors
         for neighbor in neighbors:
             Ids_in_hexagon = samples_in_hex.get(hexagon, [])
             Ids_in_neighbor = samples_in_hex.get(neighbor, [])
@@ -45,7 +54,7 @@ def calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col):
     return averages
 
 # this function calculates the average ibs between the each hexagon and its neighbors for each time bin
-def calc_dist_time_bin(df, dist_matrix=None):
+def calc_dist_time_bin(df, dist_matrix=None, allow_k_distance=False):
     # get column name for the hexagons
     hex_col = str(df.columns[df.columns.str.contains('hex')][0])
     # Convert the 'AgeGroup' column values to tuples of integers representing the start and end years,
@@ -65,7 +74,7 @@ def calc_dist_time_bin(df, dist_matrix=None):
         hexagons = time_bin_df[hex_col].unique()
         
         # Calculate the average distance for each hexagon to its neighbors within the current time bin.
-        average_distances = calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col)
+        average_distances = calc_neighbor_dist(hexagons, dist_matrix, time_bin_df, hex_col, allow_k_distance)
 
         # Append the calculated average distances to the list, indexed by the time bin label.
         averages.update({bin_label: average_distances})
@@ -97,6 +106,7 @@ def get_time_bin_hexagons(df):
         
 # function that normalizes the ibs values on a interval from 0 to 1
 def normalize_distances(timebin):
+    normalized_timebin = timebin.copy()
     min_dist = 1
     max_dist = 0
     for pair in timebin:
@@ -105,8 +115,8 @@ def normalize_distances(timebin):
         if timebin[pair] > max_dist:
             max_dist = timebin[pair]
     for pair in timebin:
-        timebin[pair] = round((timebin[pair] - min_dist) / (max_dist - min_dist), 5)
-    return timebin
+        normalized_timebin[pair] = round((timebin[pair] - min_dist) / (max_dist - min_dist), 5)
+    return normalized_timebin
 
 # function that renames the time bins into a more readable format
 def rename_time_bins(df):
@@ -119,6 +129,7 @@ def rename_time_bins(df):
         renamed_bins.append(rename_times(time_bin))
     return renamed_bins
 
+# function that renames a time bin into a more readable format
 def rename_times(time_bin):
     renamed_years = []
     # get years from time_bin
@@ -126,9 +137,9 @@ def rename_times(time_bin):
         # the time in the dataset is measured from 1950
         if int(year) < 1950:
             year = 1950 - int(year)
-            year = str(year) + " a.d."
+            year = str(year) + " AD"
         else:
             year = int(year) - 1950
-            year = str(year) + " b.c."
+            year = str(year) + " BC"
         renamed_years.append(year)
     return(" - ".join(renamed_years))  # Append to renamed_bins
