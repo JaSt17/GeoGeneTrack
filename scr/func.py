@@ -107,6 +107,12 @@ def get_time_bin_hexagons(df):
 # function that normalizes the ibs values on a interval from 0 to 1
 def normalize_distances(timebin):
     normalized_timebin = timebin.copy()
+    min_dist, max_dist = get_min_max_dist(timebin)
+    for pair in timebin:
+        normalized_timebin[pair] = round((timebin[pair] - min_dist) / (max_dist - min_dist), 5)
+    return normalized_timebin
+
+def get_min_max_dist(timebin):
     min_dist = 1
     max_dist = 0
     for pair in timebin:
@@ -114,9 +120,7 @@ def normalize_distances(timebin):
             min_dist = timebin[pair]
         if timebin[pair] > max_dist:
             max_dist = timebin[pair]
-    for pair in timebin:
-        normalized_timebin[pair] = round((timebin[pair] - min_dist) / (max_dist - min_dist), 5)
-    return normalized_timebin
+    return min_dist, max_dist
 
 # function that renames the time bins into a more readable format
 def rename_time_bins(df):

@@ -67,7 +67,7 @@ def draw_borders(hexagon1, hexagon2, m, color, ibs=None):
     return m
 
 # this function takes a timebin and a map and draws all neighboring lines for the hexagons in the timebin
-def draw_all_boarders_for_time_bin(timebin, m, color="red", threshold=1):
+def draw_all_boarders_for_time_bin(timebin, m, color="red", threshold=1.0):
     # get the normalized ibs for the color gradient
     normalized_timebin = normalize_distances(timebin)
     # color gradient 
@@ -75,7 +75,7 @@ def draw_all_boarders_for_time_bin(timebin, m, color="red", threshold=1):
     cmap = mcolors.LinearSegmentedColormap.from_list("custom_darkred_to_yellow", colors)
     # loop through all hexagons in the timebin
     for pair in timebin:
-        if timebin[pair] < threshold:
+        if timebin[pair] <= threshold:
             # get the color for the line based on the normalized ibs
             col = mcolors.to_hex(cmap(normalized_timebin[pair]))
             m = draw_borders(pair[0], pair[1], m, color= col, ibs=timebin[pair])

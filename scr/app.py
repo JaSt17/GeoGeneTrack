@@ -6,7 +6,7 @@ import pandas as pd
 import pickle
 from label_samples_time_hexa import label_samples
 from vizualize import draw_hexagons, draw_all_boarders_for_time_bin
-from func import rename_time_bins, calc_dist_time_bin, normalize_distances, get_time_bin_hexagons
+from func import rename_time_bins, calc_dist_time_bin, normalize_distances, get_time_bin_hexagons, get_min_max_dist
 
 # Function to clear session state
 def clear_state():
@@ -93,24 +93,27 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
     hexagons = time_bins_hexagons[selected_time_bin]
     timebin = time_bins_dist[selected_time_bin]
     
-    # input for entering a threshold between 0 and 1
-    threshold = st.sidebar.number_input('choose IBS threshold (0 - 1):', min_value=0.0, max_value=1.0, value=1.0, step=0.00001)
-    
     # checkbox for normalizing IBS values
     if st.sidebar.checkbox("Normalize IBS values", value=False):
         timebin = normalize_distances(timebin)
-        
+    
+    # get min and max distance for the selected time bin for the threshold
+    min_dist, max_dist = get_min_max_dist(timebin)
+    
+    # input for entering a threshold between 0 and 1
+    threshold = st.sidebar.slider('choose threshold:', min_dist, max_dist, max_dist, 0.0001)
+     
     if st.sidebar.button("Why normalize IBS values?"):
         st.sidebar.write("""
-The majority of IBS values fall within the 0.72 to 0.8 range. Normalization is applied to adjust these values to a 0 to 1 scale within each timebin, enhancing the visibility of differences among the IBS values.
+    The majority of IBS values fall within the 0.72 to 0.8 range. Normalization is applied to adjust these values to a 0 to 1 scale within each timebin, enhancing the visibility of differences among the IBS values.
 
-IMPORTANT NOTE:
-- Normalization is calculated individually for each timebin.
-- The resulting values are dimensionless and serve solely to highlight variations among the IBS values.
+    IMPORTANT NOTE:
+    - Normalization is calculated individually for each timebin.
+    - The resulting values are dimensionless and serve solely to highlight variations among the IBS values.
     """)
 
     m = draw_hexagons(hexagons)
-    m = draw_all_boarders_for_time_bin(timebin, m, threshold)
+    m = draw_all_boarders_for_time_bin(timebin, m, threshold=threshold)
 
     # Display the map in Streamlit
     folium_static(m, width=800, height=600)
