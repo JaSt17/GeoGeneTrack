@@ -116,4 +116,4 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
     m = draw_all_boarders_for_time_bin(timebin, m, threshold=threshold)
 
     # Display the map in Streamlit
-    folium_static(m, width=800, height=600)
+    folium_static(m, width=800, height=600) 

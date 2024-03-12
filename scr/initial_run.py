@@ -1,6 +1,7 @@
 from adjust_sample_lists import split_ancient_modern
 import pickle
 import os
+import pandas as pd
 
 # this function reads the distance matrix from the mibs file and saves it as a pickle file
 # this allows for fast reading of the matrix in the future
@@ -29,12 +30,17 @@ def initial_run():
     
     print("write ancient samples with time bins and hexagon ids to plink format...")
     os.system(f"cd {path}")
+    os.system("mkdir 1_ancient_data")
     os.system(f"plink --bfile 0_data/samples --keep 0_data/keep_id_list.txt --make-bed --out 1_ancient_data/ancient_samples")
     print("calculating ibs distance matrix...")
     os.system(f"cd {path}")
+    os.system("mkdir 3_ibs_dist")
     os.system(f"plink --bfile 1_ancient_data/ancient_samples --distance ibs flat-missing --out 3_ibs_dist/ibs_dist")
     
     print("reading distance matrix...")
     read_dist_matrix(path)
     print("done")
+    
+if __name__ == "__main__":
+    initial_run()
     
