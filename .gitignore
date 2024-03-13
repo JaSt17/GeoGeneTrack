@@ -1,7 +1,8 @@
-0_data/
+0_data/Ancient_samples.txt
+0_data/keep_id_list.txt
 1_ancient_data/
 2_filtered_data/
-3_ibs_dist/
+3_ibs_dist/*
 4_dist_matrix/
 output/
 scr/test*
