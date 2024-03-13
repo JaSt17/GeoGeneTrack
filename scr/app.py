@@ -13,9 +13,9 @@ def clear_state():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
         
-def get_resoultion_data():
+def get_resolution_data():
     data = {
-    "Resoultion": [0, 1, 2, 3, 4, 5],
+    "Resolution": [0, 1, 2, 3, 4, 5],
     "Total number of cells": [122, 842, 5882, 41162, 288122, 2016842],
     "Average cell area (km2)": [4357449.41, 609788.44, 86801.78, 12393.43, 1770.34, 252.90],
     "Average edge length (Km)":  [1281.256011, 483.0568391, 182.5129565, 68.97922179, 26.07175968, 9.854090990]
@@ -57,7 +57,7 @@ if 'setup_done' not in st.session_state:
         
     resolution = st.slider('Select a resolution', 0, 5, 2, 1)
     if st.button("Information about resolution"):
-        st.table(get_resoultion_data())
+        st.table(get_resolution_data())
 
     allow_k_distance = st.checkbox('Expand Search Area', value=False)
     if st.button("Information about expanding search area"):
@@ -102,7 +102,6 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
     
     # input for entering a threshold between 0 and 1
     threshold = st.sidebar.slider('choose threshold:', min_dist, max_dist, max_dist, 0.0001)
-     
     if st.sidebar.button("Why normalize IBS values?"):
         st.sidebar.write("""
     The majority of IBS values fall within the 0.72 to 0.8 range. Normalization is applied to adjust these values to a 0 to 1 scale within each timebin, enhancing the visibility of differences among the IBS values.
