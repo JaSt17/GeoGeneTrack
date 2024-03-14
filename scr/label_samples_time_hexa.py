@@ -1,16 +1,11 @@
 # This script reads the ancient samples with labels and divides them into age groups.
 # The age groups are created by dividing the samples into n bins with an equal number of samples in each group.
-# The age group is then added to the dataframe and written to a file.
+# The age group is then added to the data frame and written to a file.
 
 import pandas as pd
 from h3 import h3
+from func import read_df
 
-def read_df(path):
-    df = pd.read_csv(path, sep="\t")
-    #convert the age column to numeric
-    df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
-    return df
- 
 # function that creates n time bins with equally distributed number of samples in each group
 def create_age_groups(df, number_of_bins):
     total_samples = df.shape[0]
@@ -51,12 +46,14 @@ def add_age_group_column(df, name_dict):
     df['AgeGroup'] = df['ID'].map(name_dict)
     return df
 
+# function that filters the data frame for errors in the latitude and longitude columns
 def filter_df(df):
     # filter out the samples with missing latitude and longitude
     filtered_df = df[df['Latitude'] != '..']
     filtered_df = filtered_df[filtered_df['Longitude'] != '..']
     return filtered_df
 
+# function that assigns a hexagon to each sample with the given resolution
 def assign_hexagon_to_samples(df, resolution):
     hex_col = 'hex_res_'+str(resolution)
     df[hex_col] = df.apply(lambda x: h3.geo_to_h3(float(x['Latitude']), float(x['Longitude']), resolution=resolution), axis=1)
@@ -67,7 +64,7 @@ def write_df(df, path):
     df.to_csv(path, sep="\t", index=False)
     return
 
-# function that labels the ancient samples with the time bins and hexagons and returns the dataframe
+# function that labels the ancient samples with the time bins and hexagons and returns the data frame
 def label_samples(path, number_of_bins=30,resolution=2):
     df = read_df(f'{path}/0_data/Ancient_samples.txt')
     # create the age groups

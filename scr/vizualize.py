@@ -3,11 +3,13 @@ import folium
 from func import normalize_distances
 import matplotlib.colors as mcolors
 
+# function that draws hexagons on a map
 def draw_hexagons(hexagons, m=None, color='orange', zoom_start=1):
+    # Create a map if it is not provided
     if m is None:
-        # Generate basemap
         m = folium.Map(location=[0.0, 0.0], tiles="Esri worldstreetmap", zoom_start=zoom_start, max_bounds=True)
 
+    # function that splits a hexagon if it crosses the antimeridian
     def split_hexagon_if_needed(hexagon):
         boundary = h3.h3_to_geo_boundary(hexagon, geo_json=False)
         longitudes = [lon for lat, lon in boundary]
@@ -25,7 +27,7 @@ def draw_hexagons(hexagons, m=None, color='orange', zoom_start=1):
                 if boundary[i][1] > 0:
                     first_hex.append((boundary[i][0], boundary[i][1]))
                     second_hex.append((boundary[i][0], boundary[i][1] - 360))
-            # return two tuples of coordinates
+            # return two tuples of coordinates of the two hexagons
             return [tuple(first_hex), tuple(second_hex)]
         else:
             # return the original hexagon
@@ -33,6 +35,7 @@ def draw_hexagons(hexagons, m=None, color='orange', zoom_start=1):
 
     # Plot hexagons
     for hexagon in hexagons:
+        # split the hexagon if it crosses the antimeridian
         parts = split_hexagon_if_needed(hexagon)
         for part in parts:
             folium.Polygon(
@@ -63,21 +66,25 @@ def draw_borders(hexagon1, hexagon2, m, color, ibs=None):
     folium.PolyLine(locations=line,
                     color=color,
                     weight=5,
+                    # add the ibs value as a tooltip
                     tooltip=f"{ibs}").add_to(m)
     return m
 
-# this function takes a timebin and a map and draws all neighboring lines for the hexagons in the timebin
-def draw_all_boarders_for_time_bin(timebin, m, color="red", threshold=1.0):
+# this function takes a time bin and a map and draws all neighboring lines for the hexagons in that time bin
+def draw_all_boarders_for_time_bin(time_bin, m, color="red", threshold=1.0):
     # get the normalized ibs for the color gradient
-    normalized_timebin = normalize_distances(timebin)
-    # color gradient 
+    normalized_time_bin = normalize_distances(time_bin)
+    
+    # create a color gradient to color the lines based on the normalized ibs
     colors = [(10,0,0), (1,1,0)]
     cmap = mcolors.LinearSegmentedColormap.from_list("custom_darkred_to_yellow", colors)
-    # loop through all hexagons in the timebin
-    for pair in timebin:
-        if timebin[pair] <= threshold:
+    
+    # loop through all hexagons in the time bin
+    for pair in time_bin:
+        # only draw the line if the ibs is below the threshold
+        if time_bin[pair] <= threshold:
             # get the color for the line based on the normalized ibs
-            col = mcolors.to_hex(cmap(normalized_timebin[pair]))
-            m = draw_borders(pair[0], pair[1], m, color= col, ibs=timebin[pair])
+            col = mcolors.to_hex(cmap(normalized_time_bin[pair]))
+            m = draw_borders(pair[0], pair[1], m, color= col, ibs=time_bin[pair])
     return m
 

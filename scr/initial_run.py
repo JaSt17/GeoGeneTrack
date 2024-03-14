@@ -19,7 +19,8 @@ def read_dist_matrix(path):
 # 1. split the ancient and modern samples
 # 2. write ancient samples with time bins and hexagon ids to plink format
 # 3. calculate ibs distance matrix
-# it only has to be run once or if the data changes or we want to add aditional plink filtering steps
+# 4. write the distance matrix to a pickle file
+# it only has to be run once or if the data changes or we want to add additional plink filtering steps
 def initial_run():
     # get the path for the project directory
     path = os.getcwd()
