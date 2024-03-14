@@ -53,12 +53,11 @@ python scr/initial_run.yp
 
 ### Before running
 
-- [] make sure that you created and activated the conda environment with the given yml file
+- make sure that you created and activated the conda environment with the given yml file
 
-- [] make sure that your working directory contains the following files:
-
-    - [] 0_data/Ancient_samples.txt
-    - [] 3_ibs_dist/ibs_dist.mibs.pkl
+- make sure that your working directory contains the following files:
+  - 0_data/Ancient_samples.txt
+  - 3_ibs_dist/ibs_dist.mibs.pkl
 
 ## Usage
 
