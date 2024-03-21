@@ -91,10 +91,9 @@ def draw_all_boarders_for_time_bin(time_bin, m, color="red", threshold=1.0):
             m = draw_borders(pair[0], pair[1], m, color= col, ibs=time_bin[pair])
     return m
 
+# this function adds a colorbar to the map
 def add_colorbar_to_map(m, path):
-    
-    new_map = m
-    
+
     # Open the image file in binary mode
     with open(path, 'rb') as image_file:
         # Read the binary image data
@@ -126,9 +125,8 @@ def add_colorbar_to_map(m, path):
     }});
     </script>
     """
-
     # Adding the JavaScript to the map
     element = Element(js)
-    new_map.get_root().html.add_child(element)
-
-    return new_map
+    m.get_root().html.add_child(element)
+    
+    return m

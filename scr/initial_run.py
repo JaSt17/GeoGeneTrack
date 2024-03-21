@@ -1,3 +1,7 @@
+# This script is responsible for the initial run of the pipeline.
+# It splits the ancient and modern samples, writes the ancient samples with time bins and hexagon ids to plink format, calculates the ibs distance matrix,
+# and writes the distance matrix to a pickle file. This script only has to be run once or if the data changes or we want to add additional plink filtering steps.
+
 from adjust_sample_lists import split_ancient_modern
 import pickle
 import os

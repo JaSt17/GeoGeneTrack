@@ -136,6 +136,8 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
     m = draw_hexagons(hexagons)
     # draw all average IBS values between neighboring hexagons for the chosen time bin
     m = draw_all_boarders_for_time_bin(time_bin, m, threshold=threshold)
+    # add colorbar to the map
+    m = add_colorbar_to_map(m, os.getcwd()+"/img/colorbar.png")
 
     # Display the map in Streamlit
     folium_static(m, width=800, height=600) 
