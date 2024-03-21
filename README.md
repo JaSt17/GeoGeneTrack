@@ -23,6 +23,17 @@ conda activate geogentrack
 
 conda version: 23.7.4
 
+### Install Streamlit
+
+For the web-based user interface, we utilize Streamlit. To ensure the application functions properly on your system, please follow these instructions to install Streamlit:
+
+```{bash}
+pip install streamlit
+```
+
+Should you encounter any issues during the installation process, please consult the following webpage for assistance:
+<https://docs.streamlit.io/get-started/installation>
+
 ### How to get the IBS matrix
 
 Before you can use the application, it's crucial to have the Identity by State (IBS) matrix prepared. To obtain the necessary IBS matrix for the software, there are two distinct methods available.
@@ -48,7 +59,7 @@ The second way, is to create the file yourself. For that the python script scr/i
 Once assured that the files are in the 0_data/ directory run the initial_run python script.
 
 ```{bash}
-python scr/initial_run.yp
+python scr/initial_run.py
 ```
 
 ### Before running
