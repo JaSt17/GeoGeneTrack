@@ -9,7 +9,7 @@ import pandas as pd
 import pickle
 import os
 from label_samples_time_hexa import label_samples
-from vizualize import draw_hexagons, draw_all_boarders_for_time_bin
+from vizualize import draw_hexagons, draw_all_boarders_for_time_bin, add_colorbar_to_map
 from func import rename_time_bins, calc_dist_time_bin, normalize_distances, get_time_bin_hexagons, get_min_max_dist
 
 # Function to clear session state
@@ -139,3 +139,4 @@ if 'setup_done' in st.session_state and st.session_state['setup_done']:
 
     # Display the map in Streamlit
     folium_static(m, width=800, height=600) 
+    
