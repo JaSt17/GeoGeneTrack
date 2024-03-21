@@ -1,7 +1,10 @@
 from h3 import h3
 import folium
+from folium import Map, Element
 from func import normalize_distances
 import matplotlib.colors as mcolors
+import base64
+
 
 # function that draws hexagons on a map
 def draw_hexagons(hexagons, m=None, color='orange', zoom_start=1):
@@ -76,7 +79,7 @@ def draw_all_boarders_for_time_bin(time_bin, m, color="red", threshold=1.0):
     normalized_time_bin = normalize_distances(time_bin)
     
     # create a color gradient to color the lines based on the normalized ibs
-    colors = [(10,0,0), (1,1,0)]
+    colors = [(255,0,0), (1,1,0)]
     cmap = mcolors.LinearSegmentedColormap.from_list("custom_darkred_to_yellow", colors)
     
     # loop through all hexagons in the time bin
@@ -88,3 +91,44 @@ def draw_all_boarders_for_time_bin(time_bin, m, color="red", threshold=1.0):
             m = draw_borders(pair[0], pair[1], m, color= col, ibs=time_bin[pair])
     return m
 
+def add_colorbar_to_map(m, path):
+    
+    new_map = m
+    
+    # Open the image file in binary mode
+    with open(path, 'rb') as image_file:
+        # Read the binary image data
+        binary_data = image_file.read()
+        # Encode the binary data to base64
+        base64_encoded_data = base64.b64encode(binary_data)
+        # Decode the base64 bytes to string
+        base64_image = base64_encoded_data.decode('utf-8')
+
+    # JavaScript to add the colorbar to the map
+    js = f"""
+    <script>
+    function addColorBar() {{
+        var colorBarDiv = L.DomUtil.create('div', 'leaflet-control');
+        colorBarDiv.style.backgroundColor = 'white';
+        colorBarDiv.style.padding = '5px';
+        colorBarDiv.innerHTML = '<img src="data:image/png;base64,{base64_image}">';
+
+        var zoomControlContainer = document.getElementsByClassName('leaflet-control-zoom')[0].parentNode;
+        if (zoomControlContainer.firstChild) {{
+            zoomControlContainer.insertBefore(colorBarDiv, zoomControlContainer.firstChild);
+        }} else {{
+            zoomControlContainer.appendChild(colorBarDiv);
+        }}
+    }}
+
+    document.addEventListener('DOMContentLoaded', function() {{
+        addColorBar();
+    }});
+    </script>
+    """
+
+    # Adding the JavaScript to the map
+    element = Element(js)
+    new_map.get_root().html.add_child(element)
+
+    return new_map
